@@ -6,6 +6,8 @@ require('dotenv').config();
 require('./Helpers/init_mongodb');
 const authRoute = require('./Routes/auth.route');
 
+const { signAcessToken, verifyAccessToken } = require('../Helpers/JWT');
+
 const app = express();
 
 //Morgan in dev mode
@@ -19,9 +21,16 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/auth', authRoute);
 
-
+//This is a standard unprotected route
 app.get('/', async (req, res, next) => {
-    res.send('hello');
+    res.send("Pong!");
+});
+
+//This is a protected route that requires a valid JWT token to access it
+app.get('/protected-route', verifyAccessToken, async (req, res, next) => {
+    console.log(req.headers['authorization']);
+
+    res.send("Hello from protected route!");
 });
 
 

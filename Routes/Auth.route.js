@@ -8,7 +8,7 @@ require('@hapi/joi');
 const { authSchema } = require('../Helpers/validation_schema');
 
 
-const { signAcessToken } = require('../Helpers/JWT_helper');
+const { signAcessToken, verifyAccessToken } = require('../Helpers/JWT');
 const { UserModel } = require('../Models/User.model');
 
 router.post('/register', async(req, res, next) => {

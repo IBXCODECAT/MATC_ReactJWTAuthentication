@@ -29,5 +29,27 @@ module.exports = {
                 resolve(token);
             });
         });
+    },
+
+    verifyAccessToken: (req, res, next) => {
+        if(!req.headers['authorization']) return next(createError.Unauthorized("Unauthorized"));
+
+        //Get the token from the header
+        const authHeader = req.headers['authorization'];
+        const beaerToken = authHeader.split(' ');
+        const token = beaerToken[1];
+
+        JWT.verify(token, process.env.ACESS_TOKEN_SECRET, (err, payload) => { 
+            if(err)
+            {
+                console.error(err.message);
+                //401 = Unauthorized
+                return next(createError.Unauthorized("Unauthorized"));
+            }
+            
+            //Add the payload to the request
+            req.payload = payload;
+            next();
+        });
     }
 }

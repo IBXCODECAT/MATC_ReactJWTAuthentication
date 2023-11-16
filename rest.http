@@ -1,4 +1,11 @@
-#GET http://localhost:3000/
+# Node.js JWT Authentication & Authorization example
+
+
+GET http://localhost:3000/
+Authorization: Bearer <TOKEN HERE>
+
+
+
 
 # Login Route
 POST http://localhost:3000/auth/login
