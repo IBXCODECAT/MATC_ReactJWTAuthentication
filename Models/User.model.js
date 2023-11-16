@@ -28,6 +28,15 @@ UserSchema.pre('save', async () => {
     }
 });
 
+UserSchema.methods.isValidPassword = async (password) => {
+    try {
+        //Compare the password with the hashed password
+        return await bcrypt.compare(password, this.password);
+    } catch (error) {
+        throw error;
+    }
+};
+
 const UserModel = db.model('Users', UserSchema);
 
 module.exports = { UserModel };

@@ -37,13 +37,33 @@ router.post('/register', async(req, res, next) => {
     } catch (err) {
         console.error(err);
         //422 = Unprocessable content
-        if(error.isJoi === true) error.status = 422;
-        next(error);
+        if(err.isJoi === true) err.status = 422;
+        next(err);
     }
 });
 
 router.post('/login', async(req, res, next) => {
-    res.send('login');
+    try {
+        //Validate the request body
+        const result = await authSchema.validateAsync(req.body);
+
+        //Check if the email is already been registered
+        const user = UserModel.findOne({email: result.email});
+        if(!user) throw createError.NotFound("User not registered");
+
+        //Check if the password is correct
+        const isPasswordMatch = await UserModel.isValidPassword(result.password);
+        if(!isPasswordMatch) throw createError.Unauthorized("Unauthorized");
+
+        //Generate JWT token and send it to the user
+        const access_token = await signAcessToken(user.id);
+        res.send({access_token});
+    } catch(err) {
+
+        //422 = Unprocessable Content
+        if(err.isJoi === true) return next(createError.UnprocessableEntity("Invalid username or password"))
+        next(err);
+    }
 });
 
 router.post('/refresh-token', async(req, res, next) => {

@@ -1,7 +1,13 @@
 #GET http://localhost:3000/
 
 # Login Route
-#POST http://localhost:3000/auth/login
+POST http://localhost:3000/auth/login
+Content-Length: application/json
+
+{
+    "email": "test@example.com",
+    "password": "12345678"
+}
 
 # Register Route
 POST http://localhost:3000/auth/register
