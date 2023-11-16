@@ -30,6 +30,32 @@ module.exports = {
         });
     },
 
+    signRefreshToken: (userId) => {
+
+        const payload = {};
+
+        const secret = process.env.REFRESH_TOKEN_SECRET;
+
+        //Generate a options for a JWT token
+        const options = {
+            audience: userId,
+            expiresIn: Math.floor(Date.now(), 1000) + (60 * 60 * 24 * 365), //1 year
+            issuer: "Nathan Schmitt",
+        }
+
+        //Generate a secret key
+        return new Promise((resolve, reject) => {
+            JWT.sign(payload, secret, options, (err, token) => {
+                if (err) {
+                    console.error(err.message);
+                    //reject(err); - SECURITY VULNERABLITY (ERROR LEAK), DO NOT USE
+                    return reject(createError.InternalServerError());
+                }
+                resolve(token);
+            });
+        });
+    },
+
     verifyAccessToken: (req, res, next) => {
         if (!req.headers['authorization']) return next(createError.Unauthorized("Unauthorized"));
 

@@ -5,10 +5,10 @@ const createError = require('http-errors');
 
 require('@hapi/joi');
 
-const { authSchema } = require('../Helpers/validation_schema');
+const { authSchema } = require('../Helpers/validation');
 
 
-const { signAcessToken, verifyAccessToken } = require('../Helpers/JWT');
+const { signAcessToken, signRefreshToken } = require('../Helpers/JWT');
 const { UserModel } = require('../Models/User.model');
 
 router.post('/register', async(req, res, next) => {
@@ -31,9 +31,10 @@ router.post('/register', async(req, res, next) => {
         const user = new UserModel({email, password});
         const savedUser = await user.save();
 
-        //Generate JWT token and send it to the user
+        //Generate JWT tokens and send them to the user
         const acessToken = await signAcessToken(savedUser.id);
-        res.send({acessToken});
+        const refreshTtoken = await signRefreshToken(savedUser.id);
+        res.send({acess_token: acessToken, refresh_token: refreshTtoken}).status(201);
     } catch (err) {
         console.error(err);
         //422 = Unprocessable content
@@ -55,9 +56,10 @@ router.post('/login', async(req, res, next) => {
         const isPasswordMatch = await UserModel.isValidPassword(result.password);
         if(!isPasswordMatch) throw createError.Unauthorized("Unauthorized");
 
-        //Generate JWT token and send it to the user
-        const access_token = await signAcessToken(user.id);
-        res.send({access_token});
+        //Generate JWT tokens and send them to the user
+        const accessToken = await signAcessToken(user.id);
+        const refreshToken = await signRefreshToken(user.id);
+        res.send({access_token: accessToken, refresh_token: refreshToken});
     } catch(err) {
 
         //422 = Unprocessable Content
