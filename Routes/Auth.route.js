@@ -7,7 +7,9 @@ require('@hapi/joi');
 
 const { authSchema } = require('../Helpers/validation_schema');
 
-const User = require('../Models/User.model');
+
+const { signAcessToken } = require('../Helpers/JWT_helper');
+const { UserModel } = require('../Models/User.model');
 
 router.post('/register', async(req, res, next) => {
     try {
@@ -22,14 +24,18 @@ router.post('/register', async(req, res, next) => {
         if(!email || !password) throw createError.BadRequest();
 
         //Check if the email is already been registered
-        const doesExist = await User.User.findOne({email: email});
-        if(doesExist) return createError.Conflict(`${email} is already been registered`);
+        const doesExist = await UserModel.findOne({email: email});
+        if(doesExist) throw createError.Conflict(`${email} is already been registered`);
 
         //Create a new user
-        const user = new User.User({email, password});
+        const user = new UserModel({email, password});
         const savedUser = await user.save();
-        res.send(savedUser);
-    } catch {
+
+        //Generate JWT token and send it to the user
+        const acessToken = await signAcessToken(savedUser.id);
+        res.send({acessToken});
+    } catch (err) {
+        console.error(err);
         //422 = Unprocessable content
         if(error.isJoi === true) error.status = 422;
         next(error);

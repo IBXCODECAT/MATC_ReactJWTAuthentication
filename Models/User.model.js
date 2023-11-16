@@ -21,15 +21,13 @@ UserSchema.pre('save', async () => {
         //Generate a salt and hash password
         const salt = bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(this.password, salt);
-
         this.password = hashedPassword;
-
         next();
     } catch (error) {
         next(error)
     }
 });
 
-const user = db.model('Users', UserSchema);
+const UserModel = db.model('Users', UserSchema);
 
-module.exports = user;
+module.exports = { UserModel };
