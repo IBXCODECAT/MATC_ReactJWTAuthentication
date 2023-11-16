@@ -11,6 +11,12 @@ const app = express();
 //Morgan in dev mode
 app.use(morgan('dev'));
 
+//Parse JSON data from request body
+app.use(express.json());
+
+//Parse urlencoded data from request
+app.use(express.urlencoded({ extended: true }));
+
 app.use('/auth', authRoute);
 
 

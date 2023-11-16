@@ -15,6 +15,21 @@ const UserSchema = new db.Schema({
     }
 });
 
-const user = db.model('user', UserSchema);
+//Hash password before saving to database
+UserSchema.pre('save', async () => {
+    try {
+        //Generate a salt and hash password
+        const salt = bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(this.password, salt);
 
-export default user;
+        this.password = hashedPassword;
+
+        next();
+    } catch (error) {
+        next(error)
+    }
+});
+
+const user = db.model('Users', UserSchema);
+
+module.exports = user;
