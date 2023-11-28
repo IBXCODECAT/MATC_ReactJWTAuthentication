@@ -81,5 +81,21 @@ module.exports = {
             req.payload = payload;
             next();
         });
+    },
+
+    verifyRefreshToken: (refreshToken) => {
+        return new Promise((resolve, reject) => { 
+            JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, payload) => {
+                if (err) {
+                    console.error(err.message);
+                    //reject(err); - SECURITY VULNERABLITY (ERROR LEAK), DO NOT USE
+                    return reject(createError.Unauthorized());
+                }
+
+                const userId = payload.aud;
+
+                resolve(userId);
+            });
+        });
     }
 }

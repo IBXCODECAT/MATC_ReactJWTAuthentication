@@ -8,9 +8,9 @@ require('@hapi/joi');
 const { authSchema } = require('../Helpers/validation');
 
 
-const { signAcessToken, signRefreshToken } = require('../Helpers/JWT');
+const { signAcessToken, signRefreshToken, verifyRefreshToken } = require('../Helpers/JWT');
 const { UserModel } = require('../Models/User.model');
-
+    
 router.post('/register', async(req, res, next) => {
     try {
         //Get user input
@@ -69,7 +69,23 @@ router.post('/login', async(req, res, next) => {
 });
 
 router.post('/refresh-token', async(req, res, next) => {
-    res.send('refresh token route');
+    try
+    {
+        const { refreshToken } = req.body;
+
+        if(!refreshToken) throw createError.BadRequest();
+
+        const userId = await verifyRefreshToken(refreshToken);
+
+        const accessToken = await signAcessToken(userId);
+        const newRefreshToken = await signRefreshToken(userId);
+
+        res.send({access_token: accessToken, refresh_token: newRefreshToken});
+    }
+    catch(err)
+    {
+        next(err);
+    }
 });
 
 router.delete('/logout', async(req, res, next) => {
